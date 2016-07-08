@@ -1,0 +1,4 @@
+repo: git+ssh://git.launchpad.net/layer-nagios
+includes:
+  - layer:basic
+  - interface:nrpe-external-master
