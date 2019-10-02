@@ -10,6 +10,10 @@ def install_nagios_plugin(source_path, plugin_name, data=None):
     Args:
         source_path: Source file path to install
         plugin_name: Name of the plugin in nagios
+        data: data to put into the plugin. Useful for templating
+              to prevent writing a temp file to disk to
+              install a plugin. If supplied, the code will use
+              data and ignore what is in the source path.
 
     Returns: Full path to installed plugin
     """
@@ -28,9 +32,9 @@ def install_nagios_plugin(source_path, plugin_name, data=None):
         if dest == data:
             # same file
             return dest_path
-        # else:
-            # different file contents!
-            # maybe someone changed options or something...
+        # different file contents!
+        # maybe someone changed options or something so we need to write
+        # it again
 
     with open(dest_path, "w") as f:
         f.write(data)
