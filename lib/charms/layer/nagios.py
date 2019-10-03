@@ -1,47 +1,50 @@
-import os
-import stat
+from pathlib import Path
 
 NAGIOS_PLUGINS_DIR = '/usr/lib/nagios/plugins'
 
 
-def install_nagios_plugin(source_path, plugin_name, data=None):
+def install_nagios_plugin_from_text(text, plugin_name):
     """ Install a nagios plugin.
 
     Args:
-        source_path: Source file path to install
+        test: Source file text to install
         plugin_name: Name of the plugin in nagios
-        data: data to put into the plugin. Useful for templating
-              to prevent writing a temp file to disk to
-              install a plugin. If supplied, the code will use
-              data and ignore what is in the source path.
 
     Returns: Full path to installed plugin
     """
-    if data is None:
-        with open(source_path, "r") as f:
-            data = f.read()
-    dest_path = os.path.join(NAGIOS_PLUGINS_DIR, plugin_name)
-    if os.path.exists(dest_path):
+    dest_path = Path(NAGIOS_PLUGINS_DIR) / plugin_name
+    if dest_path.exists():
         # we could complain here, test the files are the same contents, or
         # just bail. Idempotency is a big deal in Juju, so I'd like to be
         # ok with being called with the same file multiple times, but we
         # certainly want to catch the case where multiple layers are using
         # the same filename for their nagios checks.
-        with open(dest_path, "r") as f:
-            dest = f.read()
-        if dest == data:
+        dest = dest_path.read_text()
+        if dest == text:
             # same file
             return dest_path
         # different file contents!
         # maybe someone changed options or something so we need to write
         # it again
 
-    with open(dest_path, "w") as f:
-        f.write(data)
+    dest_path.write_text(text)
+    dest_path.chmod(0o755)
 
-    os.chmod(dest_path, stat.S_IRWXU | stat.S_IRGRP |
-             stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
     return dest_path
+
+
+def install_nagios_plugin_from_file(source_file_path, plugin_name):
+    """ Install a nagios plugin.
+
+    Args:
+        source_file_path: File that is copied to create plugin
+        plugin_name: Name of the plugin in nagios
+
+    Returns: Full path to installed plugin
+    """
+
+    return install_nagios_plugin_from_text(Path(source_file_path).read_text(),
+                                           plugin_name)
 
 
 def remove_nagios_plugin(plugin_name):
@@ -52,6 +55,6 @@ def remove_nagios_plugin(plugin_name):
 
     Returns: None
     """
-    dest_path = os.path.join(NAGIOS_PLUGINS_DIR, plugin_name)
-    if os.path.exists(dest_path):
-        os.remove(dest_path)
+    dest_path = Path(NAGIOS_PLUGINS_DIR) / plugin_name
+    if dest_path.exists():
+        dest_path.unlink()
