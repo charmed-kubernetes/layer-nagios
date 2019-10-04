@@ -7,7 +7,7 @@ def install_nagios_plugin_from_text(text, plugin_name):
     """ Install a nagios plugin.
 
     Args:
-        test: Source file text to install
+        text: Plugin source code (str)
         plugin_name: Name of the plugin in nagios
 
     Returns: Full path to installed plugin
@@ -37,7 +37,7 @@ def install_nagios_plugin_from_file(source_file_path, plugin_name):
     """ Install a nagios plugin.
 
     Args:
-        source_file_path: File that is copied to create plugin
+        source_file_path: Path to plugin source file
         plugin_name: Name of the plugin in nagios
 
     Returns: Full path to installed plugin
@@ -51,7 +51,7 @@ def remove_nagios_plugin(plugin_name):
     """ Remove a nagios plugin.
 
     Args:
-        plugin_name: Plugin name that was passed to install_plugin
+        plugin_name: Name of the plugin in nagios
 
     Returns: None
     """
